@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const runProgramButton = document.querySelector("#run-program-button");
 
   const programName = document.querySelector("#program-name");
+  const runResult = document.querySelector("#run-result");
 
   if (listProgramsButton) {
     listProgramsButton.addEventListener("click", async () => {
@@ -25,6 +26,32 @@ document.addEventListener("DOMContentLoaded", () => {
             const execCard = document.querySelector(".exec-card");
             execCard.style.display = "block";
             programName.value = program;
+
+            const testImgGroup = document.querySelector("#test-img-group");
+            const testImgContainer = document.querySelector("#test-img-container");
+
+            if (program === "test_model.py") {
+              testImgGroup.style.display = "grid";
+              testImgContainer.innerHTML = '';
+
+              const imagePath = "model_data/test/";
+              const imageNames = ['playa_el_medano.jpg', 'playa_las_vistas.jpg', 'playa_los_cristianos.jpg', 'playa_san_telmo.jpg'];
+              imageNames.forEach(name => {
+                const img = document.createElement('img');
+                img.src = `${imagePath}${name}`;
+                img.alt = `Imagen ${name}`;
+                img.style.width = "90%";
+                img.addEventListener('click', () => {
+                  document.querySelectorAll('#test-img-container img').forEach(img => img.classList.remove('selected'));
+                  img.classList.add('selected');
+                });
+                testImgContainer.appendChild(img);
+              });
+            } else {
+              testImgGroup.style.display = "none";
+              testImgContainer.innerHTML = '';
+              runResult.innerHTML = '';
+            }
           });
           programsList.appendChild(item);
         });
@@ -58,11 +85,21 @@ document.addEventListener("DOMContentLoaded", () => {
     runProgramButton.addEventListener("click", async (event) => {
       event.preventDefault();
       const args = document.querySelector("#args").value;
+      const selectedImg = document.querySelector('#test-img-container img.selected');
+      const img = selectedImg ? selectedImg.src : null;
+      console.log(img);
 
       try {
-        const result = await runProgramService.run(programName.value, args);
+        if (programName.value === "test_model.py" && !selectedImg) {
+          throw new Error("Seleccione una imagen");
+        }
+        if (programName.value.endsWith(".py") && args) {
+          throw new Error("Elimine los argumentos");
+        } else if (!programName.value.endsWith(".py") && !args) {
+          throw new Error("No hay argumentos");
+        }
 
-        const runResult = document.querySelector("#run-result");
+        const result = await runProgramService.run(programName.value, args, img);
         runResult.textContent = result;
 
         if (args.includes(".png")) {
@@ -70,11 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
           imgContainer.classList.add("img-container");
 
           const orgImg = document.createElement("img");
-          orgImg.src = `/public/assets/${args.split(" ")[0]}`;
+          orgImg.src = `assets/${args.split(" ")[0]}`;
           orgImg.alt = "Image origen";
 
           const destImg = document.createElement("img");
-          destImg.src = `/public/assets/${args.split(" ")[1]}`;
+          destImg.src = `assets/${args.split(" ")[1]}`;
           destImg.alt = "Image destino";
 
           imgContainer.appendChild(orgImg);

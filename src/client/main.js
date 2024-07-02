@@ -48,6 +48,10 @@ document.querySelector("#app").innerHTML = `
               <label for="args">Arguments:</label>
               <textarea id="args" name="args"></textarea>
             </div>
+            <div class="form-group" id="test-img-group" style="display: none;">
+              <label for="testImage">Test image:</label>
+              <div id="test-img-container"></div>
+            </div>
             <button id="run-program-button" type="submit">Run</button>
           </form>
           <pre id="run-result"></pre>

@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+public/beach_model
+public/model_data
+src/server/programs/env/myenv

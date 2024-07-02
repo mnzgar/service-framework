@@ -1,10 +1,11 @@
 import { API_BASE_URL } from "../buttonListeners.js";
 
 const runProgramService = {
-  run: async (programName, args) => {
+  run: async (programName, args, img) => {
     const command = {
       program: programName,
-      args: args
+      args: args,
+      img: img
     };
 
     try {

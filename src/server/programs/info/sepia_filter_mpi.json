@@ -1,0 +1,4 @@
+{
+  "execute": "mpirun -np 2 ./",
+  "name": "(MPI) Filtro sepia"
+}

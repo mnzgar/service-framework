@@ -5,7 +5,9 @@ import { BASE_URL } from "../routes/programsRoutes.js";
 const IMG_PATH = "public/assets/";
 
 const runProgramService = {
-  getRunCommand: (program, args) => {
+  getRunCommand: (program, args, img) => {
+    const ENV_PATH = `${BASE_URL}env`;
+
     return new Promise((resolve, reject) => {
       const jsonPath = `${BASE_URL}info/${program}.json`;
       const execPath = `${BASE_URL}${program}`;
@@ -27,8 +29,23 @@ const runProgramService = {
               const destImg = `${IMG_PATH}${args.split(" ")[1]}`;
               finalArgs = `${orgImg} ${destImg}`;
             }
+            if (img) {
+              finalArgs = img.split("/").at(-1);
+            }
 
-            const command = `${jsonContent.execute}${execPath} ${finalArgs}`;
+            let command = `${jsonContent.execute}${execPath} ${finalArgs}`;
+
+            if (program.endsWith(".py")) {
+              if (!fs.existsSync(`${ENV_PATH}/myenv`)) {
+                command = `bash -c "python3 -m venv ${ENV_PATH}/myenv && 
+                    source ${ENV_PATH}/myenv/bin/activate &&
+                    pip install -r ${ENV_PATH}/requirements.txt &&
+                    ${command}"`;
+              } else {
+                command = `bash -c "source ${ENV_PATH}/myenv/bin/activate && 
+                    ${command}"`;
+              }
+            }
             resolve(command);
           } catch (error) {
             reject(error);
@@ -38,15 +55,13 @@ const runProgramService = {
     });
   },
 
-  run: async (program, args) => {
+  run: async (program, args, img) => {
     try {
-      const command = await runProgramService.getRunCommand(program, args);
+      const command = await runProgramService.getRunCommand(program, args, img);
       return new Promise((resolve, reject) => {
         exec(command, (error, stdout, stderr) => {
           if (error) {
-            reject(error);
-          } else if (stderr) {
-            reject(new Error(stderr));
+            reject(new Error(error));
           } else {
             try {
               resolve(stdout);

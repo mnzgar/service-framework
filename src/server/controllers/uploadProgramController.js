@@ -13,7 +13,7 @@ const uploadProgramController = {
       console.log("Files uploaded successfully");
       res.status(201).json({ message: "Files uploaded successfully" });
     } catch (error) {
-      console.log("Error uploading files", error);
+      console.error("Error uploading files", error);
       res.status(500).json({ error: error.message });
     }
   }

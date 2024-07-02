@@ -1,4 +1,4 @@
 {
   "execute": "./",
-  "name": "sepia_filter_sec"
+  "name": "(OpenMP) Filtro sepia"
 }
