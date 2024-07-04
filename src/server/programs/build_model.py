@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 
 import numpy as np
 from PIL import Image, ImageFilter
@@ -72,6 +73,8 @@ def train_model(train_data, model_path):
 
 
 if __name__ == '__main__':
+    total_start_time = time.time()
+
     spark = SparkSession.builder \
         .appName("Clasificacion Imagenes Playas") \
         .config("spark.driver.memory", "4g") \
@@ -87,7 +90,18 @@ if __name__ == '__main__':
         print(f"Eliminando modelo anterior")
         shutil.rmtree(MODEL_PATH)
 
+    prepare_start_time = time.time()
     train_data = prepare_data(spark, TRAIN_PATH)
+    prepare_end_time = time.time()
+
+    train_start_time = time.time()
     model = train_model(train_data, MODEL_PATH)
+    train_end_time = time.time()
 
     spark.stop()
+
+    total_end_time = time.time()
+
+    print(f"Tiempo de preparación de datos: {prepare_end_time - prepare_start_time} segundos")
+    print(f"Tiempo de entrenamiento del modelo: {train_end_time - train_start_time} segundos")
+    print(f"Tiempo total de ejecución: {total_end_time - total_start_time} segundos")
